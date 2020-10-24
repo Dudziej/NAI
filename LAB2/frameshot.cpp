@@ -49,11 +49,11 @@ int main( int argc, char** argv ) {
 		cv::putText(img_s, "S-high: "+ std::to_string(su), {10, pos+=30}, cv::FONT_HERSHEY_PLAIN, 1.0, {0, 255, 0, 255});
 		cv::putText(img_s, "V-high: "+ std::to_string(vu), {10, pos+=30}, cv::FONT_HERSHEY_PLAIN, 1.0, {0, 255, 0, 255});
 		cv::imshow("img_s", img_s);
-		char k = cv::waitKey(1);
-		if(k == 27)break;
-		if(k == 'x') {
+		char k = cv::waitKey(1);// czeka na klawisz//
+		if(k == 27)break; //esc//
+		if(k == 'x') { //x - odpala roi i po enterze zapisuje wycinek obrazu///
 			cv::Rect2d r = cv::selectROI("img_s", img_s);
-			cv::imwrite("fota.jpg", cv::Mat(img_s, r));
+			cv::imwrite("fota.jpg", cv::Mat(img_s, r)); //zapis//
 		}
 	}
 	
