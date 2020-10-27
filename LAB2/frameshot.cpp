@@ -18,14 +18,7 @@ int main( int argc, char** argv ) {
 	{
 		frame_height = 200, frame_width = 320;
 	}
-	
-	
-
 	cv::Mat img, img_s; // Macierz tworzy frame i screenshot(okna)// 
-	cap.read(img);
-	cv::GaussianBlur(img, img, cv::Size(15, 15), 0); // wybor rozmycia Gaussa//
-	
-	cv::resize(img, img, {frame_width, frame_height}); //resize//
 
 	cv::namedWindow("hsv", cv::WINDOW_AUTOSIZE);
 	int hl = 0, sl = 0, vl = 0, hu = 255, su = 255, vu = 255; //startowe paskow//
@@ -35,8 +28,17 @@ int main( int argc, char** argv ) {
 	cv::createTrackbar("h-upper", "hsv", &hu, 255);
 	cv::createTrackbar("s-upper", "hsv", &su, 255);
 	cv::createTrackbar("v-upper", "hsv", &vu, 255);
+	
+	do{
+	
+	
+	
+	cap.read(img);
+	cv::GaussianBlur(img, img, cv::Size(15, 15), 0); // wybor rozmycia Gaussa//	
+	cv::resize(img, img, {frame_width, frame_height}); //resize//
 
-	while(true){
+	
+	
 		cv::imshow("IMG", img);
 
 		cv::cvtColor(img, img_s, cv::COLOR_BGR2HSV);
@@ -49,17 +51,14 @@ int main( int argc, char** argv ) {
 		cv::putText(img_s, "S-high: "+ std::to_string(su), {10, pos+=30}, cv::FONT_HERSHEY_PLAIN, 1.0, {0, 255, 0, 255});
 		cv::putText(img_s, "V-high: "+ std::to_string(vu), {10, pos+=30}, cv::FONT_HERSHEY_PLAIN, 1.0, {0, 255, 0, 255});
 		cv::imshow("img_s", img_s);
-		char k = cv::waitKey(1);// czeka na klawisz//
+		char k = cv::waitKey(10);// czeka na klawisz//
 		if(k == 27)break; //esc//
 		if(k == 'x') { //x - odpala roi i po enterze zapisuje wycinek obrazu///
 			cv::Rect2d r = cv::selectROI("img_s", img_s);
 			cv::imwrite("fota.jpg", cv::Mat(img_s, r)); //zapis//
 		}
-	}
 	
+}while(capturing);
+
 	return 0;
 }
-	
-	
-	
-	
