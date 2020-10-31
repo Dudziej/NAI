@@ -40,7 +40,7 @@ public:
 
 int main()
 {
-	int loRange[3] = {0, 100, 255};
+	int loRange[3] = {0, 167, 84};
 	int hiRange[3] = {255, 255, 255};
 
 	namedWindow("kolor", cv::WINDOW_AUTOSIZE);
