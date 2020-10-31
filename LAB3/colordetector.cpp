@@ -98,12 +98,16 @@ int main()
                }
            } 
         for(int i = 0; i < 2; i++){
-            rectangle(frame, table[i], {255, 0, 255}, 2);
+            rectangle(frame, table[i], {0, 0, 255}, 2);
         }
+        if(table[0].y > table[1].y + 90 || table[1].y > table[0].y + 90){
+
+        }else{
         arrowedLine(frame,
         {table[0].x + table ->width /2, table[0].y + table->height/ 2},
         {table[1].x + table ->width /2, table[1].y + table->height/ 2},
         {0, 255, 0}, 3);
+        }
         }
         imshow("contours", frame);
 	}
