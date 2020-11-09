@@ -194,22 +194,25 @@ int main()
 				dst.push_back(Point2f(p.x, p.y));
 			auto wrap_mtx = getPerspectiveTransform(dst, src);
 			warpPerspective(frame0, dstMat, wrap_mtx, Size(dstMat.cols, dstMat.rows));
+			if(myobj.pos.size() > 1){
             if(myobj.getP().y<150){
-            imwrite("result.jpg", dstMat);
+            	imwrite("result.jpg", dstMat);
             }else{
-            imwrite("result.jpg", dstMat);
-            Mat img = imread("result.jpg", IMREAD_COLOR);
-            rotate(img, img, ROTATE_180);
-            imwrite("result.jpg", img);
+            	imwrite("result.jpg", dstMat);
+            	Mat img = imread("result.jpg", IMREAD_COLOR);
+            	rotate(img, img, ROTATE_180);
+            	imwrite("result.jpg", img);
             }
+			
             if(myobj.getP().x<100){
-            imwrite("result.jpg", dstMat);
+            	imwrite("result.jpg", dstMat);
             }else{
-            imwrite("result.jpg", dstMat);
-            Mat imgs = imread("result.jpg", IMREAD_COLOR);
-            rotate(imgs, imgs, ROTATE_180);
-            imwrite("result.jpg", imgs);
+            	imwrite("result.jpg", dstMat);
+            	Mat imgs = imread("result.jpg", IMREAD_COLOR);
+            	rotate(imgs, imgs, ROTATE_180);
+            	imwrite("result.jpg", imgs);
             }
+			}
 
 			imshow("RESULT", dstMat);
 		}
