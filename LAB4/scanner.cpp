@@ -50,8 +50,8 @@ double angle(cv::Point pt1, cv::Point pt2, cv::Point pt0)
 
 int main()
 {
-    int loRange[3] = {148, 19, 180};
-	int hiRange[3] = {170, 255, 255};
+    int loRange[3] = {27, 190, 92};
+	int hiRange[3] = {121, 255, 255};
 
 	namedWindow("jakostam", cv::WINDOW_AUTOSIZE);
 	createTrackbar("loRange0", "jakostam", &(loRange[0]), 255);
@@ -195,23 +195,29 @@ int main()
 			auto wrap_mtx = getPerspectiveTransform(dst, src);
 			warpPerspective(frame0, dstMat, wrap_mtx, Size(dstMat.cols, dstMat.rows));
 			if(myobj.pos.size() > 1){
-            if(myobj.getP().y<150){
+            if(myobj.getP().y<150 && myobj.getP().x>100){
             	imwrite("result.jpg", dstMat);
-            }else{
+            }
+			if(myobj.getP().y>150 && myobj.getP().x>100){
             	imwrite("result.jpg", dstMat);
             	Mat img = imread("result.jpg", IMREAD_COLOR);
             	rotate(img, img, ROTATE_180);
             	imwrite("result.jpg", img);
             }
 			
-            if(myobj.getP().x<100){
-            	imwrite("result.jpg", dstMat);
-            }else{
+            if(myobj.getP().y<150 && myobj.getP().x<100){
             	imwrite("result.jpg", dstMat);
             	Mat imgs = imread("result.jpg", IMREAD_COLOR);
-            	rotate(imgs, imgs, ROTATE_180);
+				rotate(imgs, imgs, ROTATE_90_CLOCKWISE);
             	imwrite("result.jpg", imgs);
             }
+			if(myobj.getP().y>150 && myobj.getP().x<100){
+				imwrite("result.jpg", dstMat);
+            	Mat imgp = imread("result.jpg", IMREAD_COLOR);
+            	rotate(imgp, imgp, ROTATE_90_COUNTERCLOCKWISE);
+            	imwrite("result.jpg", imgp);
+
+			}
 			}
 
 			imshow("RESULT", dstMat);
