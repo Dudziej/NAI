@@ -37,7 +37,7 @@ public:
 		}
 	}
 };
-
+int wykryj_kolor(Mat frame1, MyObject &myobj, int loRange[3], int hiRange[3]);
 double angle(cv::Point pt1, cv::Point pt2, cv::Point pt0)
 {
 	double dx1 = pt1.x - pt0.x;
@@ -51,6 +51,7 @@ int main()
 {
     int loRange[3] = {9, 133, 0};
 	int hiRange[3] = {121, 255, 255};
+
 
 	namedWindow("jakostam", cv::WINDOW_AUTOSIZE);
 	createTrackbar("loRange0", "jakostam", &(loRange[0]), 255);
@@ -88,44 +89,9 @@ int main()
 		flip(frame1, frame1, 1);
 		resize(background, backgroundScaled, {frame1.cols, frame1.rows});
 
-		cvtColor(frame1, frameMask, cv::COLOR_BGR2HSV);
-		inRange(frameMask, Scalar(loRange[0], loRange[1], loRange[2]),
-				Scalar(hiRange[0], hiRange[1], hiRange[2]), frameNegMask);
-		morphologyEx(frameNegMask, frameNegMask, MORPH_CLOSE, structElem);
-		morphologyEx(frameNegMask, frameNegMask, MORPH_OPEN, structElem);
-		imshow("dilate", frameNegMask);
 
-		vector<vector<Point>> contours1;
-		findContours(frameNegMask, contours1, cv::RETR_LIST, cv::CHAIN_APPROX_TC89_KCOS);
-		sort(contours1.begin(), contours1.end(),
-			 [](auto &a, auto &b) {
-				 return contourArea(a, false) > contourArea(b, false);
-			 });
-
-		for (int i = 0; i < contours1.size(); i++)
-		{
-			approxPolyDP(contours1.at(i), contours1.at(i), 10, true);
-		}
-		if (contours1.size())
-		{
-			Point avg;
-			Rect r = boundingRect(contours1.at(0));
-			avg.x = r.x + r.width / 2;
-			avg.y = r.y + r.height / 2;
-			myobj.addP(avg);
-		}
-		else
-		{
-			myobj.addEmpty();
-		}
-		if (myobj.pos.size() > 1) {
-			putText(frame1, "X", myobj.getP(), cv::FONT_HERSHEY_PLAIN, 2, {255, 0, 255, 255});
-			
-			vector<vector<Point>>ctrs = {myobj.pos};
-			drawContours(frame1, ctrs, 0, {255, 0, 255, 255});	
-		}
+		//wykryj_kolor(frame1, myobj, loRange, hiRange);
 		imshow("contours", frame1);
-
 		Mat frame, frame0, frameBw, frameCanny;
 		camera >> frame;
 		flip(frame, frame, 1);
@@ -175,7 +141,7 @@ int main()
 		{
 			sort(contours_4.begin(), contours_4.end(),
 				 [](auto &a, auto &b) {
-					 return contourArea(a, false) > contourArea(b, false);
+					 return contourArea(a, true) > contourArea(b, true);
 				 });
 			drawContours(frame, contours_4, 0, Scalar(255, 255, 255));
 			Mat dstMat(Size(300, 200), CV_8UC3);
@@ -185,24 +151,25 @@ int main()
 				dst.push_back(Point2f(p.x, p.y));
 			auto wrap_mtx = getPerspectiveTransform(dst, src);
 			warpPerspective(frame0, dstMat, wrap_mtx, Size(dstMat.cols, dstMat.rows));
+			wykryj_kolor(dstMat, myobj, loRange, hiRange);
 			if(myobj.pos.size() > 1){
-            if(myobj.getP().y<150 && myobj.getP().x<100){
+            if(myobj.getP().y<100 && myobj.getP().x<150){
             	imwrite("result.jpg", dstMat);
             }
-			if(myobj.getP().y>150 && myobj.getP().x<100){
+			if(myobj.getP().y>100 && myobj.getP().x<150){
             	imwrite("result.jpg", dstMat);
             	Mat img = imread("result.jpg", IMREAD_COLOR);
-            	rotate(img, img, ROTATE_90_COUNTERCLOCKWISE);
+            	rotate(img, img, ROTATE_180);
             	imwrite("result.jpg", img);
             }
 			
-            if(myobj.getP().y<150 && myobj.getP().x>100){
+            if(myobj.getP().y<100 && myobj.getP().x>150){
             	imwrite("result.jpg", dstMat);
             	Mat imgs = imread("result.jpg", IMREAD_COLOR);
-				rotate(imgs, imgs, ROTATE_90_CLOCKWISE);
+				rotate(imgs, imgs, ROTATE_90_COUNTERCLOCKWISE);
             	imwrite("result.jpg", imgs);
             }
-			if(myobj.getP().y>150 && myobj.getP().x>100){
+			if(myobj.getP().y>100 && myobj.getP().x>150){
 				imwrite("result.jpg", dstMat);
             	Mat imgp = imread("result.jpg", IMREAD_COLOR);
             	rotate(imgp, imgp, ROTATE_180);
@@ -217,4 +184,54 @@ int main()
      
 	}
 	return 0;
+
+}
+int wykryj_kolor(Mat frame1, MyObject &myobj, int loRange[3], int hiRange[3]){
+			int dilation_size = 5;
+		auto structElem = getStructuringElement(MORPH_ELLIPSE,
+												Size(2 * dilation_size + 1, 2 * dilation_size + 1),
+												Point(dilation_size, dilation_size));
+		Mat backgroundScaled;
+		Mat frameMask, frameNegMask;
+		Mat frameWithMask, backgroundScaledWithMask;
+		Mat meinniceplace;
+
+			cvtColor(frame1, frameMask, cv::COLOR_BGR2HSV);
+		inRange(frameMask, Scalar(loRange[0], loRange[1], loRange[2]),
+				Scalar(hiRange[0], hiRange[1], hiRange[2]), frameNegMask);
+		morphologyEx(frameNegMask, frameNegMask, MORPH_CLOSE, structElem);
+		morphologyEx(frameNegMask, frameNegMask, MORPH_OPEN, structElem);
+		imshow("dilate", frameNegMask);
+
+		vector<vector<Point>> contours1;
+		findContours(frameNegMask, contours1, cv::RETR_LIST, cv::CHAIN_APPROX_TC89_KCOS);
+		sort(contours1.begin(), contours1.end(),
+			 [](auto &a, auto &b) {
+				 return contourArea(a, false) > contourArea(b, false);
+			 });
+
+		for (int i = 0; i < contours1.size(); i++)
+		{
+			approxPolyDP(contours1.at(i), contours1.at(i), 10, true);
+		}
+		if (contours1.size())
+		{
+			Point avg;
+			Rect r = boundingRect(contours1.at(0));
+			avg.x = r.x + r.width / 2;
+			avg.y = r.y + r.height / 2;
+			myobj.addP(avg);
+		}
+		else
+		{
+			myobj.addEmpty();
+		}
+		if (myobj.pos.size() > 1) {
+			putText(frame1, "X", myobj.getP(), cv::FONT_HERSHEY_PLAIN, 2, {255, 0, 255, 255});
+			
+			vector<vector<Point>>ctrs = {myobj.pos};
+			drawContours(frame1, ctrs, 0, {255, 0, 255, 255});	
+		}
+		
+
 }
