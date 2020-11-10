@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <numeric>
 
-// g++ `pkg-config --cflags opencv4` cv.cpp `pkg-config --libs opencv4`
 
 using namespace std;
 using namespace cv;
@@ -50,7 +49,7 @@ double angle(cv::Point pt1, cv::Point pt2, cv::Point pt0)
 
 int main()
 {
-    int loRange[3] = {27, 190, 92};
+    int loRange[3] = {9, 133, 0};
 	int hiRange[3] = {121, 255, 255};
 
 	namedWindow("jakostam", cv::WINDOW_AUTOSIZE);
@@ -106,13 +105,6 @@ int main()
 		for (int i = 0; i < contours1.size(); i++)
 		{
 			approxPolyDP(contours1.at(i), contours1.at(i), 10, true);
-			//			drawContours(frame, contours, i, {0, 0, 255, 255});
-			//			auto txtpos = contours.at(i).at(0);
-			//			putText(frame, to_string(contours.at(i).size()), txtpos, cv::FONT_HERSHEY_PLAIN, 2, {0, 0, 255, 255});
-			//			txtpos.y += 30;
-			//			putText(frame, to_string(contourArea(contours.at(i), false)), txtpos, cv::FONT_HERSHEY_PLAIN, 2, {0, 0, 255, 255});
-			//			txtpos.y -= 60;
-			//			putText(frame, to_string(i), txtpos, cv::FONT_HERSHEY_PLAIN, 2, {0, 0, 255, 255});
 		}
 		if (contours1.size())
 		{
@@ -121,7 +113,6 @@ int main()
 			avg.x = r.x + r.width / 2;
 			avg.y = r.y + r.height / 2;
 			myobj.addP(avg);
-//			putText(frame, "0", avg, cv::FONT_HERSHEY_PLAIN, 2, {0, 255, 255, 255});
 		}
 		else
 		{
@@ -141,22 +132,22 @@ int main()
 		frame0 = frame.clone();
 		imshow("frame_from_cam", frame);
 		cvtColor(frame, frameBw, COLOR_BGR2GRAY);
-		imshow("bw", frameBw);
+		//imshow("bw", frameBw);
 		equalizeHist(frameBw, frameBw);
-		imshow("bw_hist", frameBw);
+		//imshow("bw_hist", frameBw);
 
 		Canny(frameBw, frameCanny, canny_a, canny_b, 3);
-		imshow("bw_Canny", frameCanny);
+		//imshow("bw_Canny", frameCanny);
 		static auto ellipse = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
 		morphologyEx(frameBw, frameBw, MORPH_CLOSE, ellipse);
 		morphologyEx(frameBw, frameBw, MORPH_OPEN, ellipse);
 
 		Canny(frameBw, frameCanny, canny_a, canny_b, 3);
-		imshow("bw_Canny_2", frameCanny);
+		//imshow("bw_Canny_2", frameCanny);
 		static auto ellipse_33 = getStructuringElement(MORPH_ELLIPSE, Size(3, 3));
 		morphologyEx(frameCanny, frameCanny, MORPH_DILATE, ellipse_33);
 
-		imshow("bw_Canny_2_dil", frameCanny);
+		//imshow("bw_Canny_2_dil", frameCanny);
 		vector<vector<Point>> contours;
 		vector<vector<Point>> contours_4;
 		findContours(frameCanny, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
@@ -195,26 +186,26 @@ int main()
 			auto wrap_mtx = getPerspectiveTransform(dst, src);
 			warpPerspective(frame0, dstMat, wrap_mtx, Size(dstMat.cols, dstMat.rows));
 			if(myobj.pos.size() > 1){
-            if(myobj.getP().y<150 && myobj.getP().x>100){
+            if(myobj.getP().y<150 && myobj.getP().x<100){
             	imwrite("result.jpg", dstMat);
             }
-			if(myobj.getP().y>150 && myobj.getP().x>100){
+			if(myobj.getP().y>150 && myobj.getP().x<100){
             	imwrite("result.jpg", dstMat);
             	Mat img = imread("result.jpg", IMREAD_COLOR);
-            	rotate(img, img, ROTATE_180);
+            	rotate(img, img, ROTATE_90_COUNTERCLOCKWISE);
             	imwrite("result.jpg", img);
             }
 			
-            if(myobj.getP().y<150 && myobj.getP().x<100){
+            if(myobj.getP().y<150 && myobj.getP().x>100){
             	imwrite("result.jpg", dstMat);
             	Mat imgs = imread("result.jpg", IMREAD_COLOR);
 				rotate(imgs, imgs, ROTATE_90_CLOCKWISE);
             	imwrite("result.jpg", imgs);
             }
-			if(myobj.getP().y>150 && myobj.getP().x<100){
+			if(myobj.getP().y>150 && myobj.getP().x>100){
 				imwrite("result.jpg", dstMat);
             	Mat imgp = imread("result.jpg", IMREAD_COLOR);
-            	rotate(imgp, imgp, ROTATE_90_COUNTERCLOCKWISE);
+            	rotate(imgp, imgp, ROTATE_180);
             	imwrite("result.jpg", imgp);
 
 			}
