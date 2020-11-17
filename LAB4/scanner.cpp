@@ -166,7 +166,7 @@ int main()
             if(myobj.getP().y<100 && myobj.getP().x>150){
             	imwrite("result.jpg", dstMat);
             	Mat imgs = imread("result.jpg", IMREAD_COLOR);
-				rotate(imgs, imgs, ROTATE_COUNTERCLOCKWISE);
+				rotate(imgs, imgs, ROTATE_90_COUNTERCLOCKWISE);
             	imwrite("result.jpg", imgs);
             }
 			if(myobj.getP().y>100 && myobj.getP().x>150){
