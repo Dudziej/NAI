@@ -153,16 +153,20 @@ int main()
 			warpPerspective(frame0, dstMat, wrap_mtx, Size(dstMat.cols, dstMat.rows));
 			wykryj_kolor(dstMat, myobj, loRange, hiRange);
 			if(myobj.pos.size() > 1){
+			if(contourArea(contours_4[0], true) <0){
+				flip(dstMat, dstMat, +1);
+			}
             if(myobj.getP().y<100 && myobj.getP().x<150){
             	imwrite("result.jpg", dstMat);
             }
+
 			if(myobj.getP().y>100 && myobj.getP().x<150){
             	imwrite("result.jpg", dstMat);
             	Mat img = imread("result.jpg", IMREAD_COLOR);
-            	rotate(img, img, ROTATE_180);
+            	rotate(img, img, ROTATE_90_COUNTERCLOCKWISE);
             	imwrite("result.jpg", img);
             }
-			
+	
             if(myobj.getP().y<100 && myobj.getP().x>150){
             	imwrite("result.jpg", dstMat);
             	Mat imgs = imread("result.jpg", IMREAD_COLOR);
