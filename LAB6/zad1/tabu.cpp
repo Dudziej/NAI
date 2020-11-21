@@ -101,8 +101,8 @@ auto tabu_alg = [](auto get_random_sol, auto get_all_neighbours, auto goal, int 
 
 int main(int argc, char **argv)
 {
-    int a = (argc > 4) ? stoi(argv[4]) : 0.0;
-    int b = (argc > 5) ? stoi(argv[5]) : 1.0;
+    int a = (argc > 4) ? stoi(argv[4]) : -5;
+    int b = (argc > 5) ? stoi(argv[5]) : 5;
     uniform_real_distribution<double> uniform_dist(a, b);
     int max_iterations = (argc > 3) ? stoi(argv[3]) : 100;
 
