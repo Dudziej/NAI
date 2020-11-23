@@ -7,6 +7,10 @@
 #include <numeric>
 #include <algorithm>
 #include <list>
+#include <fstream>
+#include <chrono>
+#include <sstream>
+#include <iomanip> //do setprecision --- http://www.cplusplus.com/reference/iomanip/
 
 using namespace std;
 random_device r;
@@ -99,12 +103,23 @@ auto tabu_alg = [](auto get_random_sol, auto get_all_neighbours, auto goal, int 
     return global_best;
 };
 
+double obliczMiare(double docelowy, double perIteracja, double czas){ //funkcja do liczenia miary jakosci
+    return 1 / (abs(perIteracja - docelowy) * czas); // abs wartosc absolutna
+}
+
+time_t t = time(0);   // get time now
+     struct tm * now = localtime( & t );
+
+     char buffer [80];
+
+
 int main(int argc, char **argv)
 {
-    int a = (argc > 4) ? stoi(argv[4]) : -5;
+    auto start = chrono::high_resolution_clock::now(); // start czasu
+    int a = (argc > 4) ? stoi(argv[4]) : -5; //wybór dziedziny
     int b = (argc > 5) ? stoi(argv[5]) : 5;
     uniform_real_distribution<double> uniform_dist(a, b);
-    int max_iterations = (argc > 3) ? stoi(argv[3]) : 100;
+    int max_iterations = (argc > 3) ? stoi(argv[3]) : 100; // wybor ilosci iteracji
 
     auto sphere_f = [](vector<double> x) {
         double sum = 0;
@@ -153,12 +168,14 @@ int main(int argc, char **argv)
     auto goal = himmelblau;
     auto debug_print = [=](int i, vector<double> v) {
         int stepprint = max_iterations / 100;
-        //if ((i % stepprint) == 0)
-            //            cout << i << " " << goal(v) << endl;
-            cout << v.at(0) << " " << v.at(1) << " " << goal(v) << endl;
+            strftime (buffer,80,"%d-%H-%M-%S",now); //zapisywanie do pliku czastkowe wyniki per iteracja
+            ofstream MyFile;
+            MyFile.open(buffer, ios_base::app);
+            MyFile << goal(v)<< endl;
+            MyFile.close();
     };
     vector<double> solution;
-    if((argc > 2) && (string(argv[1]) == "himmelblau")){
+    if((argc > 2) && (string(argv[1]) == "himmelblau")){ //wybor metody
         auto goal = himmelblau;
         
     }
@@ -215,8 +232,35 @@ int main(int argc, char **argv)
             1000, // tabu size
             debug_print);
     }
+    auto finish = chrono::high_resolution_clock::now(); // zapisanie obecnego czasu koncowego
+    chrono::duration<double> elapsed = finish - start; // wyliczenie czasu dzialania programu
     cerr << "#result: [ ";
     for (auto e : solution)
         cerr << e << " ";
-    cerr << "] -> " << goal(solution) << endl;
+        auto wynik_ostateczny = goal(solution);
+    cerr << "] -> " << wynik_ostateczny << " " << elapsed.count() << endl;
+
+    double * tablica_iteracji = new double[max_iterations];//tablica od iteracji 
+    double * tablica_miar = new double[max_iterations];// tablica na wyniki
+    strftime (buffer,80,"%d-%H-%M-%S",now); // nazwa pliku z wynikami per iteracja
+    ifstream input( buffer ); //pobieranie z pliku
+    int zycie = 0;
+    string line; 
+    while (getline(input, line))  //zapisuje co wjedzie na input do buffora line zwraca flage true/false jesli miala co przeczytac
+    {
+        tablica_iteracji[zycie] = stod(line);
+        zycie++;
+    }
+    input.close();
+    
+    strftime (buffer,80,"%d-%H-%M-%Sr",now); // formatuje czas 
+    ofstream ResultFile; 
+    ResultFile.open(buffer, ios_base::app); //otwarcie pliku /ios_base::app---tryb w jakim otwieram plik (append) http://www.cplusplus.com/reference/fstream/fstream/open/
+    for (int dyda = 0; dyda<zycie; dyda++) 
+    {
+        tablica_miar[dyda] = obliczMiare(wynik_ostateczny, tablica_iteracji[dyda], elapsed.count()); // dla kazdego wiersza obliczam miare z funkcji  elapsed.count wypluwa wartosc okresu
+        ResultFile << setprecision(17) << dyda << ' ' << tablica_miar[dyda] << endl;  
+    }
+    ResultFile.close();
+    
 }
