@@ -150,16 +150,16 @@ int main(int argc, char **argv)
     };
 
     /// f(x)    x należy do R^n
-    auto neighbours = [](vector<double> x, double dx = 0.01) {
+    auto neighbours = [=](vector<double> x, double dx = 0.01) {
         vector<vector<double>> ret;
         for (int i = 0; i < x.size(); i++)
         {
             auto nx = x;
             nx[i] += dx;
-            if (nx[i] < 5.0)
+            if (nx[i] < a)
                 ret.push_back(nx);
             nx[i] -= 2.0 * dx;
-            if (nx[i] > -5.0)
+            if (nx[i] > b)
                 ret.push_back(nx);
         }
         return ret;
